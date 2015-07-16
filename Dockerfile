@@ -4,18 +4,20 @@
 # Originally written for Fedora-Dockerfiles by
 #   scollier <scollier@redhat.com>
 
-FROM entos:centos7
-MAINTAINER The CentOS Project <cloud-ops@centos.org>
-
-RUN yum -y update; yum clean all
+FROM registry.access.redhat.com/rhel7.1
+MAINTAINER openshift.training
+ADD ./open.repo /etc/yum.repos.d/open.repo
+ADD epel-release-7-5.noarch.rpm /tmp/epel-release-7-5.noarch.rpm
+RUN rpm -Uvh /tmp/epel-release-7*.rpm
+RUN yum update -y; yum clean all
 RUN yum -y install epel-release; yum clean all
 RUN yum -y install httpd php php-mysql php-gd pwgen supervisor bash-completion openssh-server psmisc tar; yum clean all
 ADD ./start.sh /start.sh
 ADD ./foreground.sh /etc/apache2/foreground.sh
 ADD ./supervisord.conf /etc/supervisord.conf
-RUN echo %sudo	ALL=NOPASSWD: ALL >> /etc/sudoers
+RUN echo %sudo  ALL=NOPASSWD: ALL >> /etc/sudoers
 ADD http://wordpress.org/latest.tar.gz /wordpress.tar.gz
-RUN tar xvzf /wordpress.tar.gz 
+RUN tar xvzf /wordpress.tar.gz
 RUN mv /wordpress/* /var/www/html/.
 RUN chown -R apache:apache /var/www/
 RUN chmod 755 /start.sh
